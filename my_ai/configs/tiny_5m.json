@@ -1,0 +1,12 @@
+{
+  "name": "tiny_5m",
+  "comment": "~5M params. Trainable on a laptop CPU in under an hour on a small corpus.",
+  "vocab_size": 2048,
+  "context_length": 256,
+  "n_layers": 4,
+  "n_heads": 4,
+  "d_model": 256,
+  "d_ff": 1024,
+  "dropout": 0.1,
+  "tie_weights": true
+}

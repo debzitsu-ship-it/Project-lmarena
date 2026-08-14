@@ -1,0 +1,9 @@
+checkpoints/*.pt
+checkpoints/*.ckpt
+data/raw/
+data/processed/
+__pycache__/
+*.pyc
+.pytest_cache/
+runs/
+*.log

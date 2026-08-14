@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+my_ai/checkpoints/*.pt
+my_ai/checkpoints/*.log
+my_ai/data/processed/
+my_ai/chat/memory_store/

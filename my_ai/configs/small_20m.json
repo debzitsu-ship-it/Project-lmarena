@@ -1,0 +1,12 @@
+{
+  "name": "small_20m",
+  "comment": "~20M params. Entry GPU (6GB) or a patient Apple-Silicon/CPU machine.",
+  "vocab_size": 8192,
+  "context_length": 512,
+  "n_layers": 6,
+  "n_heads": 6,
+  "d_model": 384,
+  "d_ff": 1536,
+  "dropout": 0.1,
+  "tie_weights": true
+}

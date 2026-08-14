@@ -1,0 +1,12 @@
+{
+  "name": "xl_1b",
+  "comment": "~1.2B params. Multi-GPU (e.g. 8xA100) + FSDP/DeepSpeed, 20B+ tokens minimum.",
+  "vocab_size": 32768,
+  "context_length": 2048,
+  "n_layers": 24,
+  "n_heads": 16,
+  "d_model": 2048,
+  "d_ff": 8192,
+  "dropout": 0.1,
+  "tie_weights": true
+}

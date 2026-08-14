@@ -1,0 +1,12 @@
+{
+  "name": "large_300m",
+  "comment": "~350M params (GPT-2-medium class). A100-40GB class GPU, ~10-30B tokens ideal.",
+  "vocab_size": 32768,
+  "context_length": 2048,
+  "n_layers": 24,
+  "n_heads": 16,
+  "d_model": 1024,
+  "d_ff": 4096,
+  "dropout": 0.1,
+  "tie_weights": true
+}

@@ -1,0 +1,12 @@
+{
+  "name": "nano_cpu",
+  "comment": "~3.4M params, context 128. For weak CPU-only sandboxes (2 cores). Demo scale.",
+  "vocab_size": 1024,
+  "context_length": 128,
+  "n_layers": 4,
+  "n_heads": 4,
+  "d_model": 256,
+  "d_ff": 1024,
+  "dropout": 0.1,
+  "tie_weights": true
+}

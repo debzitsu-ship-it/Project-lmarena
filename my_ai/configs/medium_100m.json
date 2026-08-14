@@ -1,0 +1,12 @@
+{
+  "name": "medium_100m",
+  "comment": "~110M params (GPT-2-small class). 20GB+ VRAM, ~2-10B training tokens ideal.",
+  "vocab_size": 32768,
+  "context_length": 1024,
+  "n_layers": 12,
+  "n_heads": 12,
+  "d_model": 768,
+  "d_ff": 3072,
+  "dropout": 0.1,
+  "tie_weights": true
+}
