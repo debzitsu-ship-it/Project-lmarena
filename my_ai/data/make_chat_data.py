@@ -193,6 +193,36 @@ GREETINGS = [
     ("Who made you?", ["I was built and trained from scratch by my owner, using their own code and data."]),
 ]
 
+# Tiny code-writing requests with hand-written correct answers. At this
+# model scale these teach the *shape* of code answers; real code fluency
+# comes from the raw source-code corpus + more parameters later.
+CODE_QA = [
+    ("Write a Python program that prints hello.",
+     'print("hello")'),
+    ("How do I print something in Python?",
+     'Use the print function, like this: print("your text")'),
+    ("Write a Python function that adds two numbers.",
+     "def add(a, b):\n    return a + b"),
+    ("Show me a Python loop that counts to five.",
+     "for i in range(1, 6):\n    print(i)"),
+    ("How do I make a variable in Python?",
+     "Just give it a name and a value, like this: x = 10"),
+    ("Write a function that doubles a number.",
+     "def double(n):\n    return n * 2"),
+    ("How do I write a comment in Python?",
+     "Start the line with a hash sign, like this: # this is a comment"),
+    ("Show me an if statement in Python.",
+     'if x > 5:\n    print("big")\nelse:\n    print("small")'),
+    ("Write a Python function that says hello to a name.",
+     'def greet(name):\n    print("Hello, " + name)'),
+    ("How do I make a list in Python?",
+     "Use square brackets, like this: fruits = [\"apple\", \"mango\", \"banana\"]"),
+    ("Show me how to loop over a list in Python.",
+     'for fruit in fruits:\n    print(fruit)'),
+    ("Write a function that checks if a number is even.",
+     "def is_even(n):\n    return n % 2 == 0"),
+]
+
 # Questions the model should honestly deflect. The exact questions vary but
 # the ANSWER PATTERN ("I am not sure...") is what it must learn.
 UNKNOWN_QUESTIONS = [
@@ -230,6 +260,9 @@ def main(out_path: str = "my_ai/data/raw/chat_synthetic.jsonl",
         elif r < 0.30:                                 # honest "I don't know"
             q = rng.choice(UNKNOWN_QUESTIONS)
             a = rng.choice(UNKNOWN_ANSWERS)
+            text = f"<|user|>{q}<eos><|assistant|>{a}<eos>"
+        elif r < 0.45:                                 # code-writing Q&A
+            q, a = rng.choice(CODE_QA)
             text = f"<|user|>{q}<eos><|assistant|>{a}<eos>"
         elif r < 0.85:                                 # topic Q&A
             topic, facts = rng.choice(topics)

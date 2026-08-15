@@ -148,8 +148,16 @@ def tokenize_and_pack(docs: list[str], tokenizer, out_path: str) -> np.ndarray:
     return np.memmap(out_path, dtype=dtype, mode="r")
 
 
-def open_token_file(path: str, vocab_size: int) -> np.ndarray:
+def open_token_file(path: str, vocab_size: int, in_ram_below: int = 200_000_000) -> np.ndarray:
+    """Open a packed token file.
+
+    Files smaller than `in_ram_below` bytes are loaded fully into RAM
+    (much faster on slow disks); larger ones stay memory-mapped so huge
+    corpora still stream from disk without exhausting memory.
+    """
     dtype = np.uint16 if vocab_size < 65536 else np.uint32
+    if os.path.getsize(path) <= in_ram_below:
+        return np.fromfile(path, dtype=dtype)
     return np.memmap(path, dtype=dtype, mode="r")
 
 
