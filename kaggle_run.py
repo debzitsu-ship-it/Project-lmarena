@@ -46,8 +46,20 @@ def hours_left() -> float:
 # ---------------------------------------------------------------- 1. GPU check
 try:
     import torch
-    print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available()
-          else "NONE — enable GPU in Session options for a fast run!")
+    if torch.cuda.is_available():
+        name = torch.cuda.get_device_name(0)
+        try:
+            (torch.zeros(2, device="cuda") + 1).sum().item()
+            print("GPU:", name, "(working)")
+        except Exception:
+            raise SystemExit(
+                f"\n{'=' * 60}\nERROR: {name} is NOT supported by Kaggle's PyTorch "
+                f"build.\nFIX: Session options -> Accelerator -> 'GPU T4 x2', "
+                f"then run again.\nStopping now so no time is wasted on CPU.\n{'=' * 60}")
+    else:
+        print("GPU: NONE — enable GPU in Session options for a fast run!")
+except SystemExit:
+    raise
 except Exception as e:  # torch always preinstalled on Kaggle
     raise SystemExit(f"PyTorch missing: {e}")
 
@@ -136,6 +148,10 @@ if os.path.exists("my_ai/checkpoints/latest.pt"):
         "--lr", "1e-4", "--batch-size", "32"], check=False)
 
 # ---------------------------------------------------------------- 7. export
+# Only export if THIS run produced a pretrained checkpoint; otherwise we'd
+# silently export the old committed model from the repo.
+if not os.path.exists("my_ai/checkpoints/latest.pt"):
+    raise SystemExit("no checkpoint was produced this run (see errors above) — nothing to export")
 src = "my_ai/checkpoints/chat/best.pt" if os.path.exists("my_ai/checkpoints/chat/best.pt") \
     else "my_ai/checkpoints/latest.pt"
 if os.path.exists(src):

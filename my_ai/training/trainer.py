@@ -52,7 +52,16 @@ class TrainConfig:
 
 def pick_device() -> str:
     if torch.cuda.is_available():
-        return "cuda"
+        # Smoke-test the GPU: some environments (e.g. Kaggle P100 with a
+        # newer PyTorch build) report CUDA available but have no compiled
+        # kernels for the card ("no kernel image"). Fall back to CPU then.
+        try:
+            (torch.zeros(2, device="cuda") + 1).sum().item()
+            return "cuda"
+        except Exception as e:
+            print(f"[warn] CUDA present but unusable ({type(e).__name__}); "
+                  f"falling back to CPU. Tip: on Kaggle choose 'GPU T4 x2' "
+                  f"instead of P100.")
     if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
         return "mps"
     return "cpu"
