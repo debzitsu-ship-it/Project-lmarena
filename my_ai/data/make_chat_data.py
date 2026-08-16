@@ -201,6 +201,28 @@ GREETINGS = [
     ("Are you an AI?", ["Yes, I am a small AI language model trained from scratch by my owner."]),
     ("Are you human?", ["No, I am not human. I am a small computer program that learned from text."]),
     ("Can you help me?", ["Yes! Ask me about everyday things, computers or simple Python code."]),
+    # intro phrasings (every wording a user might actually say)
+    ("Give your intro.", ["Hello! I am a small AI assistant trained from scratch. I can chat about everyday things, computers and simple math."]),
+    ("Give me your intro.", ["Hi! I am a tiny language model built from scratch. Ask me about animals, weather, books, computers or simple math."]),
+    ("Your intro please.", ["Hello! I am a small AI trained from scratch by my owner. I know simple topics and a little Python."]),
+    ("Intro yourself.", ["Hi! I am a small from-scratch language model. I can talk about everyday things and computers."]),
+    ("Say something about yourself.", ["I am a little AI model trained from random weights on books, code and simple facts."]),
+    ("Give me an introduction.", ["Hello! I am a small AI assistant. I learned from books and code, so I know simple topics."]),
+]
+
+# Prefixes people naturally add — teaches the model that the question inside
+# is the same question. Applied randomly to topic questions.
+PREFIXES = ["", "", "", "Please ", "Can you ", "Could you ", "Ok ", "Hey, ",
+            "I want you to ", "Now "]
+
+# Word-salad / unclear inputs -> ask for clarification instead of gibberish.
+NONSENSE_WORDS = ["blorp", "the when", "fast yes", "table why", "green go",
+                  "much wow", "ok but moon fish", "run tree fast", "how much the",
+                  "yes no maybe when", "do the thing", "that stuff", "it now go"]
+CLARIFY_ANSWERS = [
+    "I am not sure what you mean. Could you say it in different words?",
+    "Sorry, I did not understand that. Can you ask it another way?",
+    "I did not follow that. Please try asking with a full question.",
 ]
 
 # Tiny code-writing requests with hand-written correct answers. At this
@@ -274,9 +296,14 @@ def main(out_path: str = "my_ai/data/raw/chat_synthetic.jsonl",
         elif r < 0.45:                                 # code-writing Q&A
             q, a = rng.choice(CODE_QA)
             text = f"<|user|>{q}<eos><|assistant|>{a}<eos>"
-        elif r < 0.85:                                 # topic Q&A
+        elif r < 0.50:                                 # clarification for unclear input
+            q = rng.choice(NONSENSE_WORDS)
+            a = rng.choice(CLARIFY_ANSWERS)
+            text = f"<|user|>{q}<eos><|assistant|>{a}<eos>"
+        elif r < 0.85:                                 # topic Q&A (with natural prefixes)
             topic, facts = rng.choice(topics)
-            q = rng.choice(QUESTION_FORMS).format(t=topic)
+            q = rng.choice(PREFIXES) + rng.choice(QUESTION_FORMS).format(t=topic).lower() \
+                if rng.random() < 0.3 else rng.choice(QUESTION_FORMS).format(t=topic)
             text = f"<|user|>{q}<eos><|assistant|>{build_answer(rng, facts)}<eos>"
         else:                                          # multi-turn
             g, ganswers = rng.choice(GREETINGS[:4])

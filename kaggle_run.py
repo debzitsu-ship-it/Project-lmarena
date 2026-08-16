@@ -98,6 +98,8 @@ for bid in [1080, 2542, 5200, 16389, 902, 408, 1232, 844]:
         except Exception:
             continue
 sh(["my_ai.data.make_chat_data"])
+sh(["my_ai.data.make_math_data"], check=False)
+sh(["my_ai.data.make_knowledge_data"], check=False)
 total = sum(os.path.getsize(os.path.join("my_ai/data/raw", f)) for f in os.listdir("my_ai/data/raw"))
 print(f"corpus: {total / 1e6:.1f} MB")
 

@@ -99,6 +99,18 @@ def main() -> None:
                 print("[pinned last exchange]")
             continue
 
+        # agent tools first: exact answers beat learned approximations
+        from my_ai.chat.tools import try_calculator
+        tool_answer = try_calculator(user_msg)
+        if tool_answer is not None:
+            print(f"AI: {tool_answer}")
+            history.append({"role": "user", "text": user_msg})
+            history.append({"role": "assistant", "text": tool_answer})
+            memory.append_turn(session, "user", user_msg)
+            memory.append_turn(session, "assistant", tool_answer)
+            last_user, last_reply = user_msg, tool_answer
+            continue
+
         ids = build_prompt_ids(tokenizer, memory.get_facts(), history,
                                user_msg, model.cfg.context_length)
         print("AI: ", end="", flush=True)

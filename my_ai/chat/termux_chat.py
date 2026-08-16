@@ -137,6 +137,22 @@ def build_prompt(tokenizer, facts, history, user_msg, ctx) -> list[int]:
 
 
 TOKENIZER = None
+_CORR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "memory_store", "corrections.json")
+
+
+def _load_corrections() -> list:
+    try:
+        with open(_CORR_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def _save_corrections(rows: list) -> None:
+    os.makedirs(os.path.dirname(_CORR_PATH), exist_ok=True)
+    with open(_CORR_PATH, "w", encoding="utf-8") as f:
+        json.dump(rows, f, ensure_ascii=False, indent=1)
 
 
 def main() -> None:
@@ -153,6 +169,7 @@ def main() -> None:
           "commands: remember: <fact> | facts | reset | quit\n")
 
     history, facts = [], []
+    corrections = _load_corrections()
     while True:
         try:
             msg = input("You: ").strip()
@@ -174,6 +191,22 @@ def main() -> None:
         if low.startswith("remember:"):
             facts.append(msg.split(":", 1)[1].strip())
             print("[fact stored — in this session's memory, not the model's weights]\n")
+            continue
+        if low.startswith("learn:") and "=>" in msg:
+            # teach a correction: learn: question => right answer
+            q, a = msg.split(":", 1)[1].split("=>", 1)
+            corrections.append({"q": q.strip(), "a": a.strip()})
+            _save_corrections(corrections)
+            print("[correction stored — will be used for the next fine-tune]\n")
+            continue
+
+        # agent tools first: exact math beats learned approximation
+        from my_ai.chat.tools import try_calculator
+        tool = try_calculator(msg)
+        if tool is not None:
+            print("AI:", tool, "\n")
+            history.append({"role": "user", "text": msg})
+            history.append({"role": "assistant", "text": tool})
             continue
 
         ids = build_prompt(TOKENIZER, facts, history, msg, model.ctx)

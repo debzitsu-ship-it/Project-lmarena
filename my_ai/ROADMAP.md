@@ -1,5 +1,34 @@
 # Training roadmap: from parrot to personal AI
 
+## Owner's target spec (recorded 2026-08) and honest feasibility
+
+Wanted: math, general knowledge, coding, agent functions (phone control,
+web/image search), huge conversation skills, learns from mistakes,
+remembers things, ~2B parameters.
+
+Status of each, honestly:
+- **Math**: solved TODAY via the calculator tool (exact at any size) +
+  math dataset so the model also learns the language of math.
+- **General knowledge**: knowledge dataset now; scales with corpus size.
+  Real breadth needs Wikipedia-scale data (see Phase 2).
+- **Coding**: code corpus + code Q&A now; useful generation begins ~100M+
+  params with 10-100x more code data.
+- **Agent functions**: app-level tools, not model weights. Calculator done;
+  web search/phone control are integrations to add to the chat app —
+  they work with ANY model size.
+- **Learns from mistakes**: `learn: question => answer` command stores
+  corrections; prepare_finetune folds them into the next fine-tune (x20
+  weight). True online learning does not exist for any LLM.
+- **Remembers**: memory system (facts/history) exists; corrections persist.
+- **2B parameters**: NOT reachable on free compute. 2B needs ~40B+ training
+  tokens (~100 GB text) and weeks on 8x A100 (thousands of dollars).
+  Kaggle's free ceiling: ~50-125M params trained properly across multiple
+  12h sessions. That is the honest maximum on this budget — and a
+  well-fed 50-125M model is dramatically better than today's 14M.
+
+Path: 14M (done) -> 50M (next Kaggle runs) -> 125M (chained sessions)
+-> beyond requires paid GPUs.
+
 Data is the food. Weights are the memory. This file turns the phased plan
 into concrete, runnable steps for THIS repo. Do them in order — each phase
 builds on the previous checkpoint.

@@ -36,16 +36,34 @@ def main() -> None:
     tok = load_tokenizer(os.path.join(args.data, "tokenizer.json"))
     rng = random.Random(args.seed)
 
-    # chat docs
+    # chat docs: every *_synthetic.jsonl in raw (chat, math, knowledge, ...)
     chat_docs: list[str] = []
-    with open(os.path.join(args.raw, args.chat_file), encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    chat_docs.append(json.loads(line)["text"])
-                except (json.JSONDecodeError, KeyError):
-                    continue
+    chat_files = [f for f in os.listdir(args.raw) if f.endswith("_synthetic.jsonl")]
+    if args.chat_file not in chat_files and os.path.exists(os.path.join(args.raw, args.chat_file)):
+        chat_files.append(args.chat_file)
+    for cf in chat_files:
+        with open(os.path.join(args.raw, cf), encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        chat_docs.append(json.loads(line)["text"])
+                    except (json.JSONDecodeError, KeyError):
+                        continue
+
+    # user corrections ("learn from mistakes"): repeated 20x so the few
+    # hand-taught fixes actually leave a mark in the weights
+    corr_path = os.path.join("my_ai", "chat", "memory_store", "corrections.json")
+    if os.path.exists(corr_path):
+        try:
+            with open(corr_path, encoding="utf-8") as f:
+                corrections = json.load(f)
+            for c in corrections:
+                chat_docs.extend(
+                    [f"<|user|>{c['q']}<eos><|assistant|>{c['a']}<eos>"] * 20)
+            print(f"included {len(corrections)} user corrections (x20 weight)")
+        except (json.JSONDecodeError, KeyError):
+            pass
 
     # background text docs (books + code), chopped into chat-sized pieces
     bg_docs_full = [d for d in load_corpus([args.raw])
